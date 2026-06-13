@@ -46,16 +46,28 @@ The backend application requires the following environment variables. Create a `
 ```env
 PORT=5000
 NODE_ENV=development
-MONGO_URI=mongodb://127.0.0.1:27017/neolearn
+MONGO_URI=mongodb+srv://neolearnadmin:neolearn%4017620@cluster0.yfwrjyd.mongodb.net/neolearn?retryWrites=true&w=majority&appName=Cluster0
 JWT_SECRET=your_jwt_strong_secret_key_here
 OPENAI_API_KEY=your_openai_api_key_here
 ```
 
 ---
 
+## ☁️ MongoDB Atlas Cloud Database Integration
+
+This project is configured to use a cloud-hosted MongoDB database via **MongoDB Atlas** for data persistence. This eliminates the need to run MongoDB locally on your system.
+
+### MongoDB Atlas Setup:
+1. Create a MongoDB Atlas cluster and a database user (e.g., `neolearnadmin`).
+2. Whitelist your IP address (or `0.0.0.0/0` to allow access from anywhere) in Atlas under Network Access.
+3. Retrieve your SRV connection URI.
+4. Replace the `MONGO_URI` value in your `backend/.env` file. (Note: if your password contains special characters like `@`, you must URL-encode them. For example, `@` becomes `%40`).
+
+---
+
 ## 📦 Installation & Setup
 
-Before running the application, ensure you have **Node.js** (v16+) and **MongoDB** installed and running locally.
+Before running the application, ensure you have **Node.js** (v16+) installed. Local MongoDB is optional as we use MongoDB Atlas.
 
 ### 1. Backend Setup
 1. Navigate to the backend directory:
