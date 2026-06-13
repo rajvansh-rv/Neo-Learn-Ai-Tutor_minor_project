@@ -1,0 +1,10 @@
+# Backend specific ignores
+node_modules/
+.env
+.env.local
+.env.development
+.env.production
+uploads/
+*.pdf
+logs/
+*.log

@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoLearn AI - Futuristic AI Tutor</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- PDF.js for Client-Side OCR Fallback -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#4F46E5', // Indigo 600
+                        secondary: '#7C3AED', // Violet 600
+                        accent: '#06B6D4', // Cyan 500
+                        darkbg: '#0B0F19', // Deep space dark
+                        darkcard: '#111827', // Gray 900
+                    },
+                    backgroundImage: {
+                        'neon-gradient': 'linear-gradient(to right, #4F46E5, #7C3AED, #06B6D4)',
+                    },
+                    borderRadius: {
+                        'xl': '1rem',
+                        '2xl': '1.5rem',
+                        '3xl': '2rem',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <script>
+        // Force dark mode for futuristic UI
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('color-theme', 'dark');
+    </script>
+    
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-slate-50 text-slate-900 dark:bg-darkbg dark:text-slate-100 overflow-x-hidden font-sans selection:bg-primary/30">
+
+    <!-- Mobile Sidebar Overlay -->
+    <div id="sidebar-overlay"
+        class="fixed inset-0 bg-black/20 z-40 hidden lg:hidden backdrop-blur-sm transition-opacity"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar"
+        class="fixed top-0 left-0 h-full w-64 glass border-r border-gray-200/10 dark:border-white/5 z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out sidebar-scroll flex flex-col shadow-2xl">
+        <div class="p-6 flex items-center justify-between">
+            <div class="flex items-center gap-3 text-2xl font-black tracking-tighter">
+                <div class="w-8 h-8 rounded-lg bg-neon-gradient flex items-center justify-center text-white shadow-lg shadow-primary/30">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <span class="text-gradient font-display">NeoLearn</span>
+            </div>
+            <!-- Close button for mobile -->
+            <button class="lg:hidden text-gray-400 hover:text-white focus:outline-none transition-colors"
+                onclick="document.getElementById('mobile-menu-btn').click();">
+                <i class="fa-solid fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <nav class="flex-1 px-4 space-y-2 mt-4 font-medium">
+            <a href="#" id="ai-tutor-tab"
+                class="flex items-center gap-3 px-4 py-3 text-white bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/5 hover:border-white/10 group relative overflow-hidden">
+                <div class="absolute inset-0 bg-neon-gradient opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                <i class="fa-solid fa-microchip text-accent group-hover:glow-accent transition-all"></i>
+                <span>AI Tutor</span>
+            </a>
+            <a href="#" id="new-chat-btn"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white rounded-2xl transition-all hover:bg-white/5 group">
+                <i class="fa-regular fa-pen-to-square group-hover:text-primary transition-colors"></i>
+                <span>New Chat</span>
+            </a>
+            <a href="#" id="reference-tab"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white rounded-2xl transition-all hover:bg-white/5 group">
+                <i class="fa-solid fa-link group-hover:text-primary transition-colors"></i>
+                <span>Reference</span>
+            </a>
+            <div class="sidebar-item-container block w-full">
+                <a href="#" id="history-tab"
+                    class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white rounded-2xl transition-all hover:bg-white/5 justify-between w-full group">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-clock-rotate-left group-hover:text-primary transition-colors"></i>
+                        <span>History</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-down text-xs transition-transform duration-200" id="history-chevron"></i>
+                </a>
+                <div id="history-panel" class="hidden flex-col gap-1 pl-11 pr-3 max-h-[30vh] overflow-y-auto sidebar-scroll pb-2 w-full mt-1">
+                    <div class="text-xs text-slate-500 py-2 italic w-full text-left">Loading history...</div>
+                </div>
+            </div>
+            <a href="#" id="ats-tab"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white rounded-2xl transition-all hover:bg-white/5 group">
+                <i class="fa-solid fa-file-contract group-hover:text-secondary transition-colors"></i>
+                <span>ATS Analyzer</span>
+            </a>
+            <a href="#" id="profile-tab"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white rounded-2xl transition-all hover:bg-white/5 group">
+                <i class="fa-solid fa-user-astronaut group-hover:text-secondary transition-colors"></i>
+                <span>My Profile</span>
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-white/5 space-y-3" id="auth-buttons-container">
+            <a href="login.html"
+                class="flex items-center justify-center gap-2 w-full py-3 text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 rounded-2xl font-semibold transition-all border border-white/5">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                Log In
+            </a>
+            <a href="signup.html"
+                class="flex items-center justify-center w-full py-3 bg-neon-gradient text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all hover:scale-[1.02]">
+                Sign Up
+            </a>
+        </div>
+        <div class="p-4 border-t border-white/5 space-y-2 hidden" id="user-info-container">
+            <div class="flex items-center gap-3 px-4 py-2 glass-panel rounded-2xl cursor-pointer hover:border-primary/30 transition-colors">
+                <div class="w-10 h-10 rounded-xl bg-neon-gradient flex items-center justify-center text-white font-bold shadow-lg" id="sidebar-user-avatar">
+                    U
+                </div>
+                <div class="flex flex-col overflow-hidden">
+                    <span class="text-sm font-bold text-white truncate" id="sidebar-user-name">User</span>
+                    <button id="logout-btn" class="text-xs text-red-400 hover:text-red-300 text-left transition-colors font-medium">Disconnect</button>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="lg:ml-64 min-h-screen flex flex-col">
+
+        <!-- Top Navbar -->
+        <!-- Top Navbar -->
+        <header class="sticky top-0 z-30 bg-white/80 dark:bg-darkbg/80 backdrop-blur-xl px-6 py-4 flex items-center justify-between border-b border-gray-200/50 dark:border-white/5 transition-colors duration-200">
+            <button id="mobile-menu-btn" class="lg:hidden text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-white focus:outline-none">
+                <i class="fa-solid fa-bars text-2xl"></i>
+            </button>
+
+            <div class="ml-auto flex items-center gap-4">
+                  <button
+                    id="theme-toggle"
+                    class="flex items-center justify-center w-10 h-10 text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-white bg-white dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/5 shadow-sm transition-all hover:scale-105 cursor-pointer">
+                    <i class="fa-solid fa-circle-half-stroke"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Chat Wrapper -->
+        <div class="chat-container flex-1 flex flex-col relative w-full h-[calc(100vh-73px)] max-w-[1200px] mx-auto overflow-hidden">
+            
+            <!-- Animated Background Blobs -->
+            <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary/20 rounded-full mix-blend-screen filter blur-[100px] animate-float pointer-events-none z-0"></div>
+            <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-accent/20 rounded-full mix-blend-screen filter blur-[120px] animate-float-delayed pointer-events-none z-0"></div>
+
+            <!-- Hero Section -->
+            <div id="hero-section" class="absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-500 pointer-events-none z-10 px-4 sm:px-6 lg:px-8 pb-32 overflow-y-auto sidebar-scroll">
+                <div class="text-center space-y-6 max-w-4xl mx-auto animate-fade-in-up pointer-events-auto mt-10">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-primary/30 text-primary dark:text-accent text-sm font-semibold mb-2 shadow-lg shadow-primary/20">
+                        <span class="w-2 h-2 rounded-full bg-accent animate-pulse"></span>
+                        NeoLearn AI System Online
+                    </div>
+                    
+                    <h1 class="text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-slate-900 dark:text-white font-display leading-tight">
+                        Your Personal <br />
+                        <span class="text-gradient">AI Learning Companion</span>
+                    </h1>
+
+                    <p class="text-lg md:text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
+                        Learn smarter with generative AI-powered explanations, career guidance, ATS analysis, and real-time deep research.
+                    </p>
+
+                    <!-- Smart Action Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12 w-full text-left">
+                        <div id="action-explain-topic" class="glass-panel p-6 rounded-3xl hover:-translate-y-2 transition-transform duration-300 cursor-pointer group">
+                            <div class="w-12 h-12 rounded-2xl bg-primary/20 text-primary dark:text-indigo-400 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-bolt"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">Explain Any Topic</h3>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">Break down complex concepts into simple, easy-to-understand explanations.</p>
+                        </div>
+                        
+                        <div id="action-learning-roadmap" class="glass-panel p-6 rounded-3xl hover:-translate-y-2 transition-transform duration-300 cursor-pointer group">
+                            <div class="w-12 h-12 rounded-2xl bg-secondary/20 text-secondary dark:text-violet-400 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-map-location-dot"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">Learning Roadmap</h3>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">Get personalized step-by-step guides to master new skills and technologies.</p>
+                        </div>
+
+                        <div id="action-ats-analyzer" class="glass-panel p-6 rounded-3xl hover:-translate-y-2 transition-transform duration-300 cursor-pointer group">
+                            <div class="w-12 h-12 rounded-2xl bg-accent/20 text-accent dark:text-cyan-400 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-file-contract"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">ATS Resume Analyzer</h3>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">Score your resume against industry standards with AI-driven feedback.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Messages (Scrollable) -->
+            <div id="chat-messages" class="messages flex-1 overflow-y-auto hidden px-4 sm:px-6 lg:px-8 pb-48 pt-6 space-y-6 z-10 w-full scroll-smooth sidebar-scroll">
+                <!-- Messages will be appended here -->
+            </div>
+
+            <!-- Reference Container -->
+            <div id="reference-container" class="hidden flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 pb-48 pt-6 z-10 w-full sidebar-scroll bg-slate-50 dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800">
+                <div class="max-w-4xl mx-auto w-full">
+                    <div class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 mt-6">
+                        <h2 class="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
+                            <i class="fa-solid fa-bookmark text-primary"></i> 
+                            Learning Resources
+                        </h2>
+                        <p class="text-slate-500 dark:text-slate-400 mt-2">Curated materials gathered based on your current chat topic (<span id="ref-topic-label" class="font-semibold text-primary"></span>).</p>
+                    </div>
+                    
+                    <div id="reference-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-12">
+                        <!-- References injected here via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ATS Container -->
+            <div id="ats-container" class="hidden flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 pb-48 pt-10 z-10 w-full sidebar-scroll bg-transparent">
+                <div class="max-w-4xl mx-auto w-full relative">
+                    <!-- Title -->
+                    <div class="mb-10 text-center">
+                        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-secondary/30 text-secondary dark:text-violet-400 text-sm font-semibold mb-4 shadow-lg shadow-secondary/20">
+                            <i class="fa-solid fa-microchip"></i> AI-Powered Analysis
+                        </div>
+                        <h2 class="text-4xl font-black text-slate-800 dark:text-white flex items-center justify-center gap-3 font-display">
+                            ATS Resume <span class="text-gradient">Analyzer</span>
+                        </h2>
+                        <p class="text-slate-500 dark:text-slate-400 mt-3 text-lg">Upload your resume to get an ATS score, formatting analysis, and AI improvement suggestions.</p>
+                    </div>
+
+                    <!-- Upload Area -->
+                    <div id="ats-upload-area" class="glass-panel border-2 border-dashed border-primary/30 rounded-[2rem] p-12 text-center transition-all hover:border-primary hover:glow-primary cursor-pointer mb-8 relative group">
+                        <input type="file" id="ats-file-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept=".pdf,.docx">
+                        <div class="w-20 h-20 mx-auto bg-primary/20 rounded-full flex items-center justify-center text-4xl text-primary mb-6 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all shadow-lg">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-700 dark:text-white mb-2">Drop your Resume here</h3>
+                        <p class="text-slate-500 dark:text-slate-400">or click to browse (PDF, DOCX)</p>
+                        <div id="ats-selected-file" class="hidden mt-6 inline-flex items-center gap-2 bg-primary/20 text-primary dark:text-indigo-300 px-6 py-3 rounded-xl font-bold text-sm border border-primary/30">
+                            <i class="fa-solid fa-file-lines"></i> <span id="ats-filename">filename.pdf</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-center mb-10">
+                        <button id="ats-analyze-btn" class="bg-neon-gradient text-white px-10 py-4 rounded-2xl font-bold shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 text-lg" disabled>
+                            <i class="fa-solid fa-magnifying-glass-chart"></i> Analyze Resume
+                        </button>
+                    </div>
+
+                    <!-- Error State -->
+                    <div id="ats-error-box" class="hidden glass-panel border border-red-500/30 rounded-2xl p-6 mb-8 text-red-400">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0 text-red-500 text-xl">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg text-red-400">Analysis Failed</h4>
+                                <p id="ats-error-message" class="text-sm mt-1 opacity-80">Something went wrong.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="ats-loading" class="hidden text-center py-16 glass-panel rounded-[2rem]">
+                        <div class="relative w-20 h-20 mx-auto mb-6">
+                            <div class="absolute inset-0 border-4 border-primary/20 rounded-full"></div>
+                            <div class="absolute inset-0 border-4 border-primary rounded-full border-t-transparent animate-spin"></div>
+                            <i class="fa-solid fa-robot absolute inset-0 flex items-center justify-center text-2xl text-primary"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Analyzing Resume...</h3>
+                        <p class="text-slate-400 font-medium">Extracting keywords and formatting data</p>
+                    </div>
+
+                    <!-- Results Section -->
+                    <div id="ats-result" class="hidden space-y-6 pb-12">
+                        <!-- Score Card -->
+                        <div class="glass-panel rounded-[2rem] p-8 text-center relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-full h-1 bg-neon-gradient"></div>
+                            <h3 class="text-2xl font-bold text-slate-700 dark:text-white mb-2 font-display">Overall ATS Score</h3>
+                            <div class="text-7xl font-black text-transparent bg-clip-text bg-neon-gradient my-6 flex items-center justify-center gap-2">
+                                <span id="ats-score-value">0</span><span class="text-4xl text-slate-500 font-bold">/100</span>
+                            </div>
+                            <p id="ats-score-message" class="text-lg text-slate-400 font-medium"></p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Keyword Match -->
+                            <div class="glass-panel rounded-3xl p-6 hover:border-accent/30 transition-colors">
+                                <h4 class="text-lg font-bold text-white flex items-center gap-3 mb-4">
+                                    <div class="w-8 h-8 rounded-lg bg-accent/20 text-accent flex items-center justify-center"><i class="fa-solid fa-key"></i></div> 
+                                    Keyword Analysis
+                                </h4>
+                                <ul id="ats-keywords-list" class="space-y-3 text-sm text-slate-300">
+                                </ul>
+                            </div>
+                            <!-- Formatting Issues -->
+                            <div class="glass-panel rounded-3xl p-6 hover:border-orange-500/30 transition-colors">
+                                <h4 class="text-lg font-bold text-white flex items-center gap-3 mb-4">
+                                    <div class="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center"><i class="fa-solid fa-file-pen"></i></div>
+                                    Formatting Issues
+                                </h4>
+                                <ul id="ats-formatting-list" class="space-y-3 text-sm text-slate-300 list-disc list-inside">
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Grammar Issues -->
+                        <div class="glass-panel rounded-3xl p-6 hover:border-red-500/30 transition-colors">
+                            <h4 class="text-lg font-bold text-white flex items-center gap-3 mb-4">
+                                <div class="w-8 h-8 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center"><i class="fa-solid fa-spell-check"></i></div>
+                                Spelling & Grammar
+                            </h4>
+                            <ul id="ats-grammar-list" class="space-y-3 text-sm text-slate-300 list-disc list-inside">
+                            </ul>
+                        </div>
+
+                        <!-- Suggestions -->
+                        <div class="glass-panel rounded-3xl p-6 hover:border-primary/30 transition-colors">
+                            <h4 class="text-lg font-bold text-white flex items-center gap-3 mb-4">
+                                <div class="w-8 h-8 rounded-lg bg-primary/20 text-primary flex items-center justify-center"><i class="fa-solid fa-lightbulb"></i></div>
+                                AI Improvement Suggestions
+                            </h4>
+                            <ul id="ats-suggestions-content" class="space-y-4 text-sm text-slate-300 list-disc list-inside">
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Internship Finder Section -->
+                    <div id="internship-container" class="mt-16 pt-10 pb-12 relative">
+                        <div class="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+                        <div class="mb-10 text-center">
+                            <h2 class="text-3xl font-black text-slate-800 dark:text-white flex items-center justify-center gap-3 font-display">
+                                Find Internships in Your <span class="text-gradient">Domain</span>
+                            </h2>
+                            <p class="text-slate-500 dark:text-slate-400 mt-3 text-lg">Discover relevant remote and on-site internship opportunities globally.</p>
+                        </div>
+
+                        <!-- Search Bar -->
+                        <div class="max-w-3xl mx-auto flex gap-3 mb-12">
+                            <input type="text" id="internship-domain-input" placeholder="Enter your domain (e.g., Web Development, AI/ML)" class="flex-1 glass border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-primary focus:glow-primary transition-all text-lg placeholder:text-slate-500">
+                            <button id="search-internships-btn" class="bg-neon-gradient text-white px-8 py-4 rounded-2xl font-bold hover:shadow-lg hover:shadow-primary/40 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2">
+                                <i class="fa-solid fa-magnifying-glass"></i> <span class="hidden sm:inline text-lg">Search</span>
+                            </button>
+                        </div>
+
+                        <!-- Loading State -->
+                        <div id="internship-loading" class="hidden text-center py-16 glass-panel rounded-[2rem]">
+                            <div class="relative w-16 h-16 mx-auto mb-6">
+                                <div class="absolute inset-0 border-4 border-secondary/20 rounded-full"></div>
+                                <div class="absolute inset-0 border-4 border-secondary rounded-full border-t-transparent animate-spin"></div>
+                                <i class="fa-solid fa-briefcase absolute inset-0 flex items-center justify-center text-secondary"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2">Scouring the web...</h3>
+                            <p class="text-slate-400">Finding the best opportunities for you.</p>
+                        </div>
+
+                        <!-- Error/Empty State -->
+                        <div id="internship-empty" class="hidden text-center py-16 glass-panel rounded-[2rem]">
+                            <div class="w-20 h-20 mx-auto bg-white/5 rounded-full flex items-center justify-center text-4xl text-slate-500 mb-6">
+                                <i class="fa-solid fa-folder-open"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-white mb-2">No internships found</h3>
+                            <p class="text-slate-400 text-lg">Try searching for a different domain or keyword.</p>
+                        </div>
+
+                        <!-- Results Grid -->
+                        <div id="internship-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Cards will be injected here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Container -->
+            <div id="profile-container" class="hidden flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 pb-48 pt-10 z-10 w-full sidebar-scroll bg-transparent">
+                <div class="max-w-5xl mx-auto w-full">
+                    
+                    <!-- Profile Header -->
+                    <div class="glass-panel rounded-[2.5rem] p-10 shadow-2xl mb-10 relative overflow-hidden">
+                        <div class="absolute top-[-50%] right-[-10%] w-[500px] h-[500px] bg-primary/20 rounded-full blur-[80px] pointer-events-none"></div>
+                        <div class="flex flex-col sm:flex-row items-center sm:items-start gap-8 relative z-10">
+                            <div class="w-32 h-32 sm:w-40 sm:h-40 rounded-[2rem] bg-gradient-to-tr from-primary via-secondary to-accent p-1 flex-shrink-0 shadow-lg shadow-primary/30 group">
+                                <div class="w-full h-full rounded-[1.8rem] bg-darkcard flex items-center justify-center text-5xl sm:text-6xl text-white font-bold group-hover:bg-transparent transition-colors" id="profile-avatar">
+                                    <i class="fa-solid fa-user-astronaut"></i>
+                                </div>
+                            </div>
+                            <div class="text-center sm:text-left flex-1 mt-4">
+                                <h1 class="text-4xl sm:text-5xl font-black text-white tracking-tighter font-display mb-2" id="profile-name">Loading...</h1>
+                                <p class="text-slate-400 mt-2 text-xl flex items-center justify-center sm:justify-start gap-3">
+                                    <i class="fa-solid fa-envelope text-primary"></i> <span id="profile-email">...</span>
+                                </p>
+                                <div class="mt-6 flex flex-wrap gap-3 justify-center sm:justify-start">
+                                    <span class="px-4 py-2 glass border border-white/10 text-slate-300 rounded-xl text-sm font-medium flex items-center gap-2">
+                                        <i class="fa-solid fa-calendar-days text-accent"></i> Joined <span id="profile-join-date" class="text-white font-bold">...</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="profile-loading" class="text-center py-20 glass-panel rounded-[2.5rem]">
+                        <div class="relative w-16 h-16 mx-auto mb-6">
+                            <div class="absolute inset-0 border-4 border-primary/20 rounded-full"></div>
+                            <div class="absolute inset-0 border-4 border-primary rounded-full border-t-transparent animate-spin"></div>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Syncing Data...</h3>
+                        <p class="text-slate-400">Loading your AI learning profile</p>
+                    </div>
+
+                    <div id="profile-content" class="hidden space-y-10 pb-12">
+                        <!-- Stats Grid -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                            <div class="glass-panel p-8 rounded-3xl flex flex-col items-center justify-center text-center hover:-translate-y-2 transition-transform group">
+                                <div class="w-16 h-16 rounded-2xl bg-primary/20 text-primary flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-messages"></i></div>
+                                <div class="text-4xl font-black text-white font-display" id="stat-chats">0</div>
+                                <div class="text-sm font-bold text-slate-500 uppercase tracking-widest mt-2">Chats</div>
+                            </div>
+                            <div class="glass-panel p-8 rounded-3xl flex flex-col items-center justify-center text-center hover:-translate-y-2 transition-transform group">
+                                <div class="w-16 h-16 rounded-2xl bg-accent/20 text-accent flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-file-contract"></i></div>
+                                <div class="text-4xl font-black text-white font-display" id="stat-ats">0</div>
+                                <div class="text-sm font-bold text-slate-500 uppercase tracking-widest mt-2">ATS Scans</div>
+                            </div>
+                            <div class="glass-panel p-8 rounded-3xl flex flex-col items-center justify-center text-center hover:-translate-y-2 transition-transform group">
+                                <div class="w-16 h-16 rounded-2xl bg-secondary/20 text-secondary flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-briefcase"></i></div>
+                                <div class="text-4xl font-black text-white font-display" id="stat-internships">0</div>
+                                <div class="text-sm font-bold text-slate-500 uppercase tracking-widest mt-2">Searches</div>
+                            </div>
+                            <div class="glass-panel p-8 rounded-3xl flex flex-col items-center justify-center text-center hover:-translate-y-2 transition-transform group relative overflow-hidden">
+                                <div class="absolute inset-0 bg-neon-gradient opacity-10"></div>
+                                <div class="w-16 h-16 rounded-2xl bg-orange-500/20 text-orange-500 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-fire"></i></div>
+                                <div class="text-4xl font-black text-white font-display">Active</div>
+                                <div class="text-sm font-bold text-slate-500 uppercase tracking-widest mt-2">Status</div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <!-- Recent ATS Reports -->
+                            <div class="glass-panel rounded-[2rem] p-8">
+                                <h3 class="text-xl font-black text-white mb-6 flex items-center gap-3 font-display">
+                                    <div class="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center text-accent"><i class="fa-solid fa-file-contract"></i></div>
+                                    Recent ATS Scans
+                                </h3>
+                                <div class="space-y-4" id="profile-ats-list">
+                                    <!-- injected via JS -->
+                                    <div class="text-center py-8 text-slate-500 bg-white/5 rounded-2xl border border-white/5">No data</div>
+                                </div>
+                            </div>
+
+                            <!-- Recent Internship Searches -->
+                            <div class="glass-panel rounded-[2rem] p-8">
+                                <h3 class="text-xl font-black text-white mb-6 flex items-center gap-3 font-display">
+                                    <div class="w-10 h-10 rounded-xl bg-secondary/20 flex items-center justify-center text-secondary"><i class="fa-solid fa-briefcase"></i></div>
+                                    Internship Searches
+                                </h3>
+                                <div class="space-y-4" id="profile-internships-list">
+                                    <!-- injected via JS -->
+                                    <div class="text-center py-8 text-slate-500 bg-white/5 rounded-2xl border border-white/5">No data</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Not Logged In State -->
+                    <div id="profile-not-logged-in" class="hidden text-center py-24 glass-panel rounded-[3rem] mt-10 relative overflow-hidden">
+                        <div class="absolute inset-0 bg-neon-gradient opacity-5"></div>
+                        <div class="w-32 h-32 mx-auto bg-primary/10 rounded-full flex items-center justify-center text-6xl text-primary mb-8 shadow-lg shadow-primary/20">
+                            <i class="fa-solid fa-user-lock"></i>
+                        </div>
+                        <h2 class="text-4xl font-black text-white mb-4 font-display">Access Restricted</h2>
+                        <p class="text-slate-400 mb-10 max-w-lg mx-auto text-lg leading-relaxed">Connect your account to view your personalized AI learning profile, saved knowledge base, ATS reports, and career history.</p>
+                        <div class="flex items-center justify-center gap-6">
+                            <a href="login.html" class="px-10 py-4 glass hover:bg-white/10 text-white rounded-2xl font-bold transition-all hover:-translate-y-1 text-lg">Log In</a>
+                            <a href="signup.html" class="px-10 py-4 bg-neon-gradient text-white rounded-2xl font-bold shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all hover:-translate-y-1 text-lg">Sign Up</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Box (Sticky Bottom) -->
+            <div id="chat-input-wrapper" class="absolute bottom-0 left-0 right-0 w-full bg-gradient-to-t from-white via-white/80 to-transparent dark:from-darkbg dark:via-darkbg/80 dark:to-transparent px-4 sm:px-6 lg:px-8 pb-6 pt-10 z-20">
+                <div class="w-full max-w-4xl mx-auto relative group">
+                    <!-- Voice Assistant Toolbar / Status -->
+                    <div id="voice-assistant-toolbar" class="mb-4 flex justify-between items-center px-6 hidden glass rounded-full py-2 border border-primary/20">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                                <i id="voice-status-icon" class="fa-solid fa-microphone-lines text-primary animate-pulse"></i>
+                            </div>
+                            <span id="voice-status-text" class="text-sm font-bold text-slate-700 dark:text-white">Listening...</span>
+                        </div>
+                        <div class="voice-wave flex gap-1 items-center h-4">
+                            <span class="wave-bar bg-accent rounded-full w-1 h-3 animate-wave" style="animation-delay: 0.1s"></span>
+                            <span class="wave-bar bg-primary rounded-full w-1 h-5 animate-wave" style="animation-delay: 0.2s"></span>
+                            <span class="wave-bar bg-secondary rounded-full w-1 h-4 animate-wave" style="animation-delay: 0.3s"></span>
+                            <span class="wave-bar bg-primary rounded-full w-1 h-6 animate-wave" style="animation-delay: 0.4s"></span>
+                            <span class="wave-bar bg-accent rounded-full w-1 h-3 animate-wave" style="animation-delay: 0.5s"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Voice Mode Toggle Button -->
+                    <div class="mb-4 flex justify-center">
+                        <button id="voice-assistant-btn" class="flex items-center justify-center gap-2 px-6 py-2.5 bg-white/5 hover:bg-white/10 dark:bg-darkcard dark:hover:bg-white/5 border border-gray-200 dark:border-white/10 text-slate-700 dark:text-white rounded-full font-bold shadow-lg transition-all text-sm group hover:glow-primary hover:-translate-y-1">
+                            <i class="fa-solid fa-satellite-dish text-primary group-hover:scale-110 transition-transform"></i>
+                            <span id="voice-btn-text">Voice Assistant</span>
+                        </button>
+                    </div>
+
+                    <div
+                        class="relative glass rounded-[2rem] shadow-2xl border border-gray-200/50 dark:border-white/10 focus-within:border-primary focus-within:glow-primary transition-all duration-300">
+                        
+                        <!-- NEW AREA FOR ACTIVE MODE INDICATORS / FILE PREVIEWS -->
+                        <div id="active-mode-container" class="hidden px-6 pt-4 pb-2 border-b border-white/5 flex flex-wrap gap-2"></div>
+
+                        <div class="flex items-center px-4 sm:px-6 py-3 sm:py-4 pointer-events-auto">
+                            <!-- Dropdown Container -->
+                            <div class="relative mr-2">
+                                <button id="plus-btn" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors shadow-sm focus:outline-none" title="More options">
+                                    <i class="fa-solid fa-plus transition-transform duration-200" id="plus-icon"></i>
+                                </button>
+                                
+                                <!-- Dropdown Menu -->
+                                <div id="plus-dropdown" class="absolute bottom-full left-0 mb-3 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 py-2 hidden z-50 transform origin-bottom-left transition-all duration-200 opacity-0 scale-95 pointer-events-none">
+                                    <button class="w-full text-left px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center gap-3 transition-colors dropdown-action-btn" data-action="upload">
+                                        <i class="fa-solid fa-paperclip text-blue-500 w-5 text-center"></i>
+                                        <span>Upload Media</span>
+                                    </button>
+                                    <button class="w-full text-left px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center gap-3 transition-colors dropdown-action-btn" data-action="thinking">
+                                        <i class="fa-solid fa-brain text-purple-500 w-5 text-center"></i>
+                                        <span>Thinking Mode</span>
+                                    </button>
+                                    <button class="w-full text-left px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center gap-3 transition-colors dropdown-action-btn" data-action="research">
+                                        <i class="fa-solid fa-magnifying-glass-chart text-orange-500 w-5 text-center"></i>
+                                        <span>Deep Research</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Hidden File Input -->
+                            <input type="file" id="file-upload-input" class="hidden" accept="image/*,.pdf,.txt,.doc,.docx">
+
+                            <input type="text" id="chat-input" placeholder="Ask anything..."
+                                class="flex-1 bg-transparent border-none outline-none text-base sm:text-lg text-slate-700 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 px-3 sm:px-4 h-full"
+                                autofocus>
+                            <button id="mic-btn" class="text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition-colors p-2 mr-2" title="Voice Input">
+                                <i class="fas fa-microphone text-lg"></i>
+                            </button>
+                            <button id="chat-submit"
+                                class="bg-primary text-white w-10 h-10 rounded-xl flex items-center justify-center hover:bg-blue-600 transition-transform active:scale-95 shadow-md shadow-blue-200 dark:shadow-none">
+                                <i class="fa-solid fa-paper-plane text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="text-center text-slate-400 text-xs mt-3">
+                        &copy; NeoLearn AI Tutor Inc. All rights reserved.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Global Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

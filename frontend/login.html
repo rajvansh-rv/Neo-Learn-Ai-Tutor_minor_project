@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In - NeoLearn AI</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#4F46E5', // Indigo 600
+                        secondary: '#7C3AED', // Violet 600
+                        accent: '#06B6D4', // Cyan 500
+                        darkbg: '#0B0F19',
+                        darkcard: '#131826',
+                    },
+                    backgroundImage: {
+                        'neon-gradient': 'linear-gradient(135deg, var(--tw-colors-primary), var(--tw-colors-secondary))',
+                    },
+                    borderRadius: {
+                        'xl': '1rem',
+                        '2xl': '1.5rem',
+                        '3xl': '2rem',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-darkbg text-white overflow-x-hidden font-sans selection:bg-primary/30 selection:text-white">
+
+    <!-- Mobile Sidebar Overlay -->
+    <div id="sidebar-overlay"
+        class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden backdrop-blur-md transition-opacity"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar"
+        class="fixed top-0 left-0 h-full w-64 glass border-r border-white/5 z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out sidebar-scroll flex flex-col shadow-2xl">
+        <div class="p-6 flex items-center justify-between">
+            <div class="flex items-center gap-3 text-2xl font-black tracking-tighter">
+                <div class="w-8 h-8 rounded-lg bg-neon-gradient flex items-center justify-center text-white shadow-lg shadow-primary/30">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <span class="text-gradient font-display">NeoLearn</span>
+            </div>
+            <!-- Close button for mobile -->
+            <button class="lg:hidden text-gray-400 hover:text-white focus:outline-none transition-colors"
+                onclick="document.getElementById('mobile-menu-btn').click();">
+                <i class="fa-solid fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <nav class="flex-1 px-3 space-y-2 mt-4">
+            <a href="index.html"
+                class="flex items-center gap-3 px-4 py-3 text-white bg-white/10 rounded-xl font-bold transition-all shadow-lg shadow-black/20 border border-white/10 group hover:glow-primary">
+                <i class="fa-solid fa-book-open-reader text-primary group-hover:scale-110 transition-transform"></i>
+                AI Tutor
+            </a>
+            <a href="index.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors group">
+                <i class="fa-regular fa-pen-to-square group-hover:text-primary transition-colors"></i>
+                New Chat
+            </a>
+            <a href="index.html"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors group">
+                <i class="fa-solid fa-link group-hover:text-primary transition-colors"></i>
+                Reference
+            </a>
+            <a href="#"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors group">
+                <i class="fa-solid fa-clock-rotate-left group-hover:text-primary transition-colors"></i>
+                History
+            </a>
+            <a href="#"
+                class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors group">
+                <i class="fa-solid fa-circle-info group-hover:text-primary transition-colors"></i>
+                About
+            </a>
+        </nav>
+        <div class="p-4 border-t border-white/5 space-y-3">
+            <a href="login.html"
+                class="flex items-center justify-center gap-2 w-full py-3 bg-white/10 text-white rounded-xl font-bold transition-all border border-white/10 hover:bg-white/20 hover:-translate-y-0.5">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i> Log In
+            </a>
+            <a href="signup.html"
+                class="flex items-center justify-center w-full py-3 bg-neon-gradient text-white rounded-xl font-bold shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all hover:-translate-y-0.5">
+                Sign Up
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="lg:ml-64 min-h-screen flex flex-col relative overflow-hidden">
+
+        <!-- Background Blurs -->
+        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary/20 rounded-full blur-[100px] pointer-events-none"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-secondary/20 rounded-full blur-[100px] pointer-events-none"></div>
+
+        <!-- Top Navbar -->
+        <header class="sticky top-0 z-30 bg-darkbg/80 backdrop-blur-xl px-6 py-4 flex items-center justify-between border-b border-white/5">
+            <button id="mobile-menu-btn" class="lg:hidden text-slate-400 hover:text-white focus:outline-none">
+                <i class="fa-solid fa-bars text-2xl"></i>
+            </button>
+
+            <div class="ml-auto flex items-center gap-4">
+                <!-- Removed theme toggle since dark mode is forced -->
+            </div>
+        </header>
+
+        <!-- Login Form Section -->
+        <div class="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-12 lg:py-20 w-full relative z-10">
+            <div class="w-full max-w-md glass-panel rounded-3xl p-10 shadow-2xl">
+
+                <div class="text-center mb-10">
+                    <div class="w-16 h-16 mx-auto bg-primary/20 rounded-2xl flex items-center justify-center text-3xl text-primary mb-6 shadow-lg">
+                        <i class="fa-solid fa-user-astronaut"></i>
+                    </div>
+                    <h2 class="text-4xl font-black text-white font-display tracking-tight">Welcome Back</h2>
+                    <p class="text-slate-400 mt-3 font-medium text-lg">Log in to continue your learning journey</p>
+                </div>
+
+                <form id="login-form" class="space-y-6">
+                    <div id="login-error" class="hidden bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation"></i> <span></span>
+                    </div>
+                    
+                    <div class="space-y-1.5">
+                        <label for="email" class="block text-sm font-bold text-slate-300">Email Address</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i class="fa-regular fa-envelope text-slate-500"></i>
+                            </div>
+                            <input type="email" id="email"
+                                class="block w-full pl-11 pr-4 py-3.5 glass border border-white/10 rounded-xl text-white placeholder:text-slate-500 focus:border-primary focus:glow-primary outline-none transition-all"
+                                placeholder="you@example.com">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <label for="password" class="block text-sm font-bold text-slate-300">Password</label>
+                            <a href="#" class="text-sm font-bold text-primary hover:text-blue-400 transition-colors">Forgot
+                                password?</a>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-lock text-slate-500"></i>
+                            </div>
+                            <input type="password" id="password"
+                                class="block w-full pl-11 pr-4 py-3.5 glass border border-white/10 rounded-xl text-white placeholder:text-slate-500 focus:border-primary focus:glow-primary outline-none transition-all"
+                                placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full py-4 mt-2 bg-neon-gradient hover:shadow-lg hover:shadow-primary/40 text-white font-bold rounded-xl transition-all hover:-translate-y-1 active:scale-95 text-lg flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i> Log In
+                    </button>
+                </form>
+
+                <div class="mt-10 relative flex items-center justify-center">
+                    <div class="border-t border-white/10 w-full absolute"></div>
+                    <span class="bg-darkcard px-4 text-sm text-slate-400 relative font-bold">Or continue with</span>
+                </div>
+
+                <div class="mt-8 grid grid-cols-2 gap-4">
+                    <button
+                        class="flex items-center justify-center gap-3 py-3 glass hover:bg-white/10 border border-white/10 rounded-xl transition-colors font-bold text-white group hover:-translate-y-1">
+                        <i class="fa-brands fa-google text-red-500 group-hover:scale-110 transition-transform"></i>
+                        <span>Google</span>
+                    </button>
+                    <button
+                        class="flex items-center justify-center gap-3 py-3 glass hover:bg-white/10 border border-white/10 rounded-xl transition-colors font-bold text-white group hover:-translate-y-1">
+                        <i class="fa-brands fa-github group-hover:scale-110 transition-transform"></i>
+                        <span>GitHub</span>
+                    </button>
+                </div>
+
+                <div class="mt-10 text-center text-base text-slate-400 font-medium">
+                    Don't have an account?
+                    <a href="signup.html" class="font-bold text-primary hover:text-blue-400 transition-colors">Sign up</a>
+                </div>
+            </div>
+
+            <footer class="mt-12 text-center text-slate-500 font-medium text-sm">
+                &copy; 2026 NeoLearn AI Inc. All rights reserved.
+            </footer>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('mobile-menu-btn')?.addEventListener('click', () => {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        });
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorDiv = document.getElementById('login-error');
+            const errorSpan = errorDiv.querySelector('span');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+
+            errorDiv.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Logging in...';
+
+            try {
+                const res = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok) {
+                    // Save token and user details
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('userName', data.name);
+                    localStorage.setItem('userId', data._id);
+                    localStorage.setItem('user', JSON.stringify({
+                        _id: data._id,
+                        name: data.name,
+                        email: data.email
+                    }));
+                    
+                    // Redirect to dashboard
+                    window.location.href = 'index.html';
+                } else {
+                    errorSpan.textContent = data.message || 'Invalid credentials';
+                    errorDiv.classList.remove('hidden');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Log In';
+                }
+            } catch (err) {
+                errorSpan.textContent = 'Server error. Please try again later.';
+                errorDiv.classList.remove('hidden');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Log In';
+            }
+        });
+    </script>
+</body>
+
+</html>
