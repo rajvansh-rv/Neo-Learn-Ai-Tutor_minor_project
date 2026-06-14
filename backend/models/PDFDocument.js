@@ -1,3 +1,4 @@
+// pdf model integration 
 import mongoose from 'mongoose';
 
 const pdfDocumentSchema = new mongoose.Schema({
